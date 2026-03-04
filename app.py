@@ -98,6 +98,7 @@ if run:
         # print logged_participants (nice columns, alphabetical)
         show_name_list_in_columns(
             logged_participants,
+            st,
             n_cols=4,
             header=f"Logged participants ({len(logged_participants)})",
         )

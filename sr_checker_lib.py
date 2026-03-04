@@ -1,5 +1,6 @@
 import argparse
 import csv
+import math
 import re
 import subprocess
 import tempfile
@@ -315,7 +316,7 @@ def extract_code(s: str) -> str:
     return s.split("/")[-1]
 
 
-def show_name_list_in_columns(names, n_cols=4, header="Participants"):
+def show_name_list_in_columns(names, st, n_cols=4, header="Participants"):
     names = sorted(set(names), key=lambda x: x.lower())
     st.subheader(header)
 
