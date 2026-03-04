@@ -9,6 +9,7 @@ from sr_checker_lib import (
     get_sr_df,
     get_violation_output,
     show_name_list_in_columns,
+    style_by_attendee,
 )
 
 st.set_page_config(page_title="SR Checker", layout="wide")
@@ -73,9 +74,12 @@ if run:
         st.success("No violations found.")
     else:
         violations_df, violations_df_full_by_char = out
-        st.dataframe(violations_df, use_container_width=True)
+        st.dataframe(style_by_attendee(violations_df), use_container_width=True)
         st.subheader("Violation details (by character)")
-        st.dataframe(violations_df_full_by_char, use_container_width=True)
+        st.dataframe(
+            style_by_attendee(violations_df_full_by_char.reset_index()),
+            use_container_width=True,
+        )
 
     # 3) High-value SRs second
     st.header("High-value SRs")

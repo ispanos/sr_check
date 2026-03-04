@@ -302,7 +302,6 @@ def get_participants_from_logs(event_code: str, *, timeout: int = 30) -> Dict[st
     return list(set([x["name"] for x in r.json() if x["name"].isalpha()]))
 
 
-# ----------------------------
 def extract_code(s: str) -> str:
     """
     Accepts a raw code like 'PQWT2X' or a full link like
@@ -331,3 +330,16 @@ def show_name_list_in_columns(names, st, n_cols=4, header="Participants"):
         chunk = names[i * per_col : (i + 1) * per_col]
         # one name per line
         col.markdown("\n".join([f"- {n}" for n in chunk]))
+
+
+def style_by_attendee(df):
+    # assign a group number per attendee
+    groups = (df["attendee"] != df["attendee"].shift()).cumsum()
+
+    colors = ["#1e1e1e", "#353535"]  # dark theme friendly
+
+    def row_style(row):
+        g = groups.loc[row.name]
+        return [f"background-color: {colors[g % 2]}"] * len(row)
+
+    return df.style.apply(row_style, axis=1)
