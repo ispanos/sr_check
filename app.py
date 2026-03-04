@@ -19,13 +19,13 @@ with st.sidebar:
     st.markdown("### Inputs")
 
     raidres_event_code_in = st.text_input(
-        "raidres_event_code",
+        "Raidres event code",
         placeholder="PQWT2X or paste RaidRes link",
     )
 
     logs_code_in = st.text_input(
-        "logs_code (optional)",
-        placeholder="95136 or paste Turtlogs link",
+        "Turtlelogs event code (optional)",
+        placeholder="E.g. enter '95136' for https://www.turtlogs.com/viewer/95136/base?history_state=1",
     )
 
     run = st.button("Run", type="primary")
@@ -92,7 +92,10 @@ if run:
             with st.spinner("Downloading participants from logs..."):
                 logged_participants = get_participants_from_logs(logs_code)
         except Exception as e:
-            st.exception(e)
+            st.exception(
+                "Error fetching participants from logs: Please check the logs code and try again."
+            )
+            # st.exception(e)
             st.stop()
 
         # print logged_participants (nice columns, alphabetical)
