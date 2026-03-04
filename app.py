@@ -92,7 +92,7 @@ if run:
             with st.spinner("Downloading participants from logs..."):
                 logged_participants = get_participants_from_logs(logs_code)
         except Exception as e:
-            st.exception(
+            st.error(
                 "Error fetching participants from logs: Please check the logs code and try again."
             )
             # st.exception(e)
