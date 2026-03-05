@@ -97,6 +97,18 @@ if run:
         n_cols=1,
         header=None,
     )
+    st.info(
+        "A Player Must Have at least 3 attendances within the Guilds runs before being able to roll for one of the High Priority Items!"
+        + " During this Period you can still Sr the item and build points towards it!"
+        + " Attendance is Bound to the Character you are Bringing!"
+    )
+
+    st.warning(
+        "⚠️Disclosure⚠️: You Will be loot Banned + Discord Kicked If: \n"
+        + " (i) If you get caught trying to cheat the system!\n"
+        + " (ii) Ignore the Sr Rules\n"
+        + "(iii) Blatantly Ignoring Raid Calls"
+    )
 
     # 2) Violations first
     st.header("Violations")
