@@ -89,7 +89,7 @@ if run:
 
     raid_name = raid_codes_map_reverse.get(raid_id, f"Raid ID {raid_id}")
     st.write(
-        f"Hello raiders, you now have 3SR+ for {raid_name}. Please be faire when using your SR+. If you need many upgrades, please use your 3 SR+",
+        f"Hello raiders, you now have 3SR+ for {raid_name}. Please be fair when using your SR+. If you need many upgrades, please use your 3 SR +",
         "If you need one of the valuable item in the following list then you can only use 1SR+ :",
     )
     show_name_list_in_columns(
