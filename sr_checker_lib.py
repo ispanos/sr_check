@@ -167,7 +167,11 @@ def build_sr_df(payload: Dict[str, Any], name_map) -> pd.DataFrame:
         # Required fields (will raise KeyError if missing; change to .get(...) if you prefer)
         sr_attendee = sr_line["character"]["name"]
         sr_attendee_spec = sr_line["character"]["specialization"]
-        sr_plus = sr_line["srPlus"]["value"]
+        sr_plus = (
+            sr_line["srPlus"].get("value", None)
+            if isinstance(sr_line.get("srPlus"), dict)
+            else None
+        )
         sr_comment = sr_line.get("comment", "")
         sr_id = sr_line["id"]
         sr_raid_item_id = sr_line["raidItemId"]

@@ -74,11 +74,19 @@ if run:
         st.success("No violations found.")
     else:
         violations_df, violations_df_full_by_char = out
-        st.dataframe(style_by_attendee(violations_df), use_container_width=True)
-        st.subheader("Violation details (by character)")
         st.dataframe(
-            style_by_attendee(violations_df_full_by_char.reset_index()),
+            style_by_attendee(violations_df).hide(axis="index"),
             use_container_width=True,
+            hide_index=True,
+        )
+        st.subheader("Violation details (by character)")
+        violations_df_full_by_char = violations_df_full_by_char.reset_index().drop(
+            columns=["row"]
+        )
+        st.dataframe(
+            style_by_attendee(violations_df_full_by_char).hide(axis="index"),
+            use_container_width=True,
+            hide_index=True,
         )
 
     # 3) High-value SRs second
@@ -86,7 +94,11 @@ if run:
     hv_df = sr_df[sr_df["is_high_value"]].drop(
         columns=["item_norm", "is_high_value", "id"], errors="ignore"
     )
-    st.dataframe(hv_df, use_container_width=True)
+    st.dataframe(
+        style_by_attendee(hv_df.reset_index(drop=True)).hide(axis="index"),
+        use_container_width=True,
+        hide_index=True,
+    )
 
     # 4) If logs_code provided: print participant list + bench/non-participants table
     if logs_code:
