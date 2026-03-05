@@ -42,13 +42,12 @@ with st.sidebar:
     run = st.button("Run", type="primary")
 
 with st.sidebar:
-    st.markdown("### Optional settings")
-
-    high_value_override = st.text_area(
-        "Override HIGH_VALUE_ITEMS (one item per line).",
-        height=150,
-        key="high_value_override",
-    )
+    with st.expander("Optional settings"):
+        high_value_override = st.text_area(
+            "Override HIGH_VALUE_ITEMS (one item per line).",
+            height=150,
+            key="high_value_override",
+        )
 
 if high_value_override.strip():
     custom_items = [x.strip() for x in high_value_override.split("\n") if x.strip()]
