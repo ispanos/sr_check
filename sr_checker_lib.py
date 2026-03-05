@@ -6,52 +6,61 @@ from typing import Any, Dict
 import pandas as pd
 import requests
 
-HIGH_VALUE_ITEMS = (
-    [
-        "Badge of the Swarmguard",
-        "Gloves of the Primordial Burrower",
-        "Dark Edge of Insanity",
-        "Eyestalk Waist Cord",
-        "Eye of C'Thun",
-        "Yshgo'lar, Cowl of Fanatical Devotion",
-        "Spotted Qiraji Battle Tank",
-    ]
-    + [
-        "Kiss of the Spider",
-        "Wraith Blade",
-        "Band of Unnatural Forces",
-        "Corrupted Ashbringer",
-        "Eye of the Dead",
-        "The Restrained Essence of Sapphiron",
-        "Cloak of the Necropolis",
-        "Slayer's Crest",
-        "Gressil, Dawn of Ruin",
-        "Might of Menethil",
-        "Plagued Riding Spider",
-        "The Hungering Cold",
-        "Hammer of the Twisting Nether",
-    ]
-    + [
-        "Mechanical Horse",
-        "Raka'shishi, Spear of the Adrift Hunt",
-        "Felforged Dreadhound",
-        "Heart of Mephistroth",
-        "Kirel'narak, the Death Sentence",
-        "Thunderfall, Stormhammer of the Chief Thane",
-        "Shar'tateth, the Shattered Edge",
-        "Ephemeral Pendant",
-        "Shieldrender Talisman",
-        "Khadgar's Guidance",
-    ]
-)
+AQ40_ITEMS = [
+    "Badge of the Swarmguard",
+    "Gloves of the Primordial Burrower",
+    "Dark Edge of Insanity",
+    "Eyestalk Waist Cord",
+    "Eye of C'Thun",
+    "Yshgo'lar, Cowl of Fanatical Devotion",
+    "Spotted Qiraji Battle Tank",
+]
+
+NAXX_ITEMS = [
+    "Kiss of the Spider",
+    "Wraith Blade",
+    "Band of Unnatural Forces",
+    "Corrupted Ashbringer",
+    "Eye of the Dead",
+    "The Restrained Essence of Sapphiron",
+    "Cloak of the Necropolis",
+    "Slayer's Crest",
+    "Gressil, Dawn of Ruin",
+    "Might of Menethil",
+    "Plagued Riding Spider",
+    "The Hungering Cold",
+    "Hammer of the Twisting Nether",
+]
+
+KARA_ITEMS = [
+    "Mechanical Horse",
+    "Raka'shishi, Spear of the Adrift Hunt",
+    "Felforged Dreadhound",
+    "Heart of Mephistroth",
+    "Kirel'narak, the Death Sentence",
+    "Thunderfall, Stormhammer of the Chief Thane",
+    "Shar'tateth, the Shattered Edge",
+    "Ephemeral Pendant",
+    "Shieldrender Talisman",
+    "Khadgar's Guidance",
+]
+
+HIGH_VALUE_ITEMS = AQ40_ITEMS + NAXX_ITEMS + KARA_ITEMS
 
 raid_codes_map = {
-    "aq40": 99,
-    "kara40": 109,
-    "zg": 100,
-    "ony": 97,
-    "naxx": 96,
-    "es": 102,
+    "AQ40": 99,
+    "Kara40": 109,
+    "ZG": 100,
+    "Onyxia": 97,
+    "Naxx": 96,
+    "ES": 102,
+}
+
+raid_codes_map_reverse = {v: k for k, v in raid_codes_map.items()}
+high_value_items_raid_map = {
+    "AQ40": AQ40_ITEMS,
+    "Kara40": KARA_ITEMS,
+    "Naxx": NAXX_ITEMS,
 }
 
 
@@ -245,7 +254,7 @@ def get_sr_df(raidres_event_code, *, raid=None, high_value_items=None):
         download_raidres_data(raid_code=raid_id),
     )
     sr_df["is_high_value"] = sr_df["item_norm"].isin(high_value_items)
-    return sr_df
+    return raid_id, sr_df
 
 
 def get_violation_output(sr_df):
@@ -317,10 +326,11 @@ def extract_code(s: str) -> str:
 
 def show_name_list_in_columns(names, st, n_cols=4, header="Participants"):
     names = sorted(set(names), key=lambda x: x.lower())
-    st.subheader(header)
+    if header:
+        st.subheader(header)
 
     if not names:
-        st.info("No names to show.")
+        st.info("Nothing to show.")
         return
 
     cols = st.columns(n_cols)

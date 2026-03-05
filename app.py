@@ -9,6 +9,8 @@ from sr_checker_lib import (
     get_participants_from_logs,
     get_sr_df,
     get_violation_output,
+    high_value_items_raid_map,
+    raid_codes_map_reverse,
     show_name_list_in_columns,
     style_by_attendee,
 )
@@ -23,7 +25,7 @@ if "initialized_from_qp" not in st.session_state:
 
 
 st.set_page_config(page_title="SR Checker", layout="wide")
-st.title("SR Checker")
+st.title("Still Standing - Loot System validation tool")
 
 
 with st.sidebar:
@@ -81,12 +83,24 @@ if run:
     # 1) Build SR df
     try:
         with st.spinner("Downloading SR data..."):
-            sr_df = get_sr_df(
+            raid_id, sr_df = get_sr_df(
                 raidres_event_code, high_value_items=high_value_items
-            )  # you said raid auto-detected now
+            )
     except Exception as e:
         st.exception(e)
         st.stop()
+
+    raid_name = raid_codes_map_reverse.get(raid_id, f"Raid ID {raid_id}")
+    st.write(
+        f"Hello raiders, you now have 3SR+ for {raid_name}. Please be faire when using your SR+. If you need many upgrades, please use your 3 SR+",
+        "If you need one of the valuable item in the following list then you can only use 1SR+ :",
+    )
+    show_name_list_in_columns(
+        high_value_items_raid_map.get(raid_name, []),
+        st,
+        n_cols=1,
+        header=None,
+    )
 
     # 2) Violations first
     st.header("Violations")
@@ -153,3 +167,19 @@ if run:
             sr_df[mask_bench | ~mask_participants][["attendee", "comment"]],
             use_container_width=True,
         )
+else:
+    st.info("Enter a raidres event link (or code) to check for SR violations.")
+    st.info(
+        "Enter a logs code and click Run to cross-check SR attendees with logs participants."
+    )
+
+st.markdown("---")
+
+st.markdown(
+    """
+    <div style="text-align:center; font-size:0.9rem; color:gray;">
+        Made for <b>Still Standing</b> ⚔️ | Please report any issues or suggestions in our discord.
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
