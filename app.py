@@ -75,7 +75,7 @@ if run:
     else:
         violations_df, violations_df_full_by_char = out
         st.dataframe(
-            style_by_attendee(violations_df).hide(axis="index"),
+            style_by_attendee(violations_df),
             use_container_width=True,
             hide_index=True,
         )
@@ -84,7 +84,7 @@ if run:
             columns=["row"]
         )
         st.dataframe(
-            style_by_attendee(violations_df_full_by_char).hide(axis="index"),
+            style_by_attendee(violations_df_full_by_char),
             use_container_width=True,
             hide_index=True,
         )
@@ -95,7 +95,7 @@ if run:
         columns=["item_norm", "is_high_value", "id"], errors="ignore"
     )
     st.dataframe(
-        style_by_attendee(hv_df.reset_index(drop=True)).hide(axis="index"),
+        style_by_attendee(hv_df.reset_index(drop=True)),
         use_container_width=True,
         hide_index=True,
     )
