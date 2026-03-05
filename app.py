@@ -1,6 +1,7 @@
 import math
 import re
 
+# import state
 import streamlit as st
 
 from sr_checker_lib import (
@@ -12,6 +13,15 @@ from sr_checker_lib import (
     style_by_attendee,
 )
 
+qp = st.query_params
+
+
+if "initialized_from_qp" not in st.session_state:
+    st.session_state.initialized_from_qp = True
+    st.session_state.raidres_event_code_in = qp.get("rc", "") or ""
+    st.session_state.logs_code_in = qp.get("lc", "") or ""
+
+
 st.set_page_config(page_title="SR Checker", layout="wide")
 st.title("SR Checker")
 
@@ -22,11 +32,13 @@ with st.sidebar:
     raidres_event_code_in = st.text_input(
         "Raidres event code",
         placeholder="PQWT2X or paste RaidRes link",
+        key="raidres_event_code_in",
     )
 
     logs_code_in = st.text_input(
         "Turtlelogs event code (optional)",
         placeholder="E.g. enter '95136' for https://www.turtlogs.com/viewer/95136/base?history_state=1",
+        key="logs_code_in",
     )
 
     run = st.button("Run", type="primary")
@@ -35,7 +47,9 @@ with st.sidebar:
     st.markdown("### Optional settings")
 
     high_value_override = st.text_area(
-        "Override HIGH_VALUE_ITEMS (one item per line).", height=150
+        "Override HIGH_VALUE_ITEMS (one item per line).",
+        height=150,
+        key="high_value_override",
     )
 
 if high_value_override.strip():
@@ -49,12 +63,20 @@ else:
 # Run
 # ----------------------------
 if run:
-    raidres_event_code = extract_code(raidres_event_code_in)
-    logs_code = extract_code(logs_code_in)
+    raidres_event_code = extract_code(st.session_state.raidres_event_code_in)
+    logs_code = st.session_state.logs_code_in
+    # logs_code = extract_code(st.session_state.logs_code_in)
 
     if not raidres_event_code:
         st.error("Please enter raidres_event_code.")
         st.stop()
+
+    # write into URL: rc always, lc only if present
+    new_qp = {"rc": raidres_event_code}
+    if logs_code:
+        new_qp["lc"] = logs_code
+    st.query_params.clear()
+    st.query_params.update(new_qp)
 
     # 1) Build SR df
     try:
