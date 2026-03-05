@@ -1,7 +1,3 @@
-import math
-import re
-
-# import state
 import streamlit as st
 
 from sr_checker_lib import (
@@ -61,9 +57,10 @@ if high_value_override.strip():
 else:
     high_value_items = None  # will use default in get_sr_df
 
-# ----------------------------
-# Run
-# ----------------------------
+# Auto run if raidres_event_code_in is provided (either via URL or user input)
+if st.session_state.raidres_event_code_in:
+    run = True
+
 if run:
     raidres_event_code = extract_code(st.session_state.raidres_event_code_in)
     logs_code = st.session_state.logs_code_in
