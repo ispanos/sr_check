@@ -1,3 +1,4 @@
+import datetime as dt
 import math
 import re
 from typing import Any, Dict
@@ -342,3 +343,62 @@ def style_by_attendee(df):
         return [f"background-color: {colors[g % 2]}"] * len(row)
 
     return df.style.apply(row_style, axis=1)
+
+
+def get_raid_meta_from_logs(event_code: str, *, timeout: int = 30) -> dict:
+    """
+    Download https://www.turtlogs.com/API/instance/export/<code>
+    and return a dict with:
+      - 'date' : start datetime (UTC)
+      - 'raid_name' : raid name (derived from map_id via turtle_logs_id_map)
+      - 'party' : list of participants
+
+    Raises:
+      - requests.HTTPError for non-2xx responses
+      - KeyError / ValueError if expected fields are missing or unknown map_id
+    """
+    turtle_logs_id_map = {
+        531: "aq40",
+        814: "kara40",
+        533: "naxx",
+    }
+
+    url = f"https://www.turtlogs.com/API/instance/export/{event_code}"
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
+        ),
+        "Accept": "application/json, text/plain, */*",
+        "Referer": url,
+        "Origin": "https://www.turtlogs.com",
+    }
+
+    with requests.Session() as s:
+        r = s.get(url, headers=headers, timeout=timeout)
+        if r.status_code == 403:
+            r = s.get(url, headers={**headers}, timeout=timeout)
+        r.raise_for_status()
+        payload: Dict[str, Any] = r.json()
+
+    start_ts_ms = payload.get("start_ts")
+    if not isinstance(start_ts_ms, (int, float)):
+        raise ValueError(f"Missing/invalid start_ts in payload: {start_ts_ms!r}")
+
+    map_id = payload.get("map_id")
+    if not isinstance(map_id, int):
+        raise ValueError(f"Missing/invalid map_id in payload: {map_id!r}")
+
+    raid_name = turtle_logs_id_map.get(map_id)
+    if raid_name is None:
+        raise KeyError(
+            f"Unknown map_id={map_id}. Known map_ids: {sorted(turtle_logs_id_map.keys())}"
+        )
+
+    start_dt_utc = dt.datetime.fromtimestamp(
+        start_ts_ms / 1000, tz=dt.timezone.utc
+    ).isoformat()
+    party = get_participants_from_logs(94572)
+    party.remove("Unknown")
+    return {"date": start_dt_utc, "raid_name": raid_name, "party": party}
