@@ -62,6 +62,9 @@ if st.session_state.raidres_event_code_in:
 
 if run:
     raidres_event_code = extract_code(st.session_state.raidres_event_code_in)
+    st.markdown(
+        f"Results for RaidRes event: [https://raidres.top/res/{raidres_event_code}](https://raidres.top/res/{raidres_event_code})"
+    )
     logs_code = st.session_state.logs_code_in
     # logs_code = extract_code(st.session_state.logs_code_in)
 
@@ -168,11 +171,15 @@ if run:
 
         # then show bench / missing participants
         mask_bench = sr_df["comment"].str.contains("bench", case=False, na=False)
-        mask_participants = sr_df["attendee"].isin(logged_participants)
+        mask_participants = (
+            sr_df["attendee"].str.lower().isin([p.lower() for p in logged_participants])
+        )
 
         st.subheader("Bench OR not in logs")
         st.dataframe(
-            sr_df[mask_bench | ~mask_participants][["attendee", "comment"]],
+            sr_df[mask_bench | ~mask_participants][
+                ["attendee", "comment"]
+            ].drop_duplicates(),
             use_container_width=True,
         )
 else:
