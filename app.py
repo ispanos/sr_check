@@ -19,6 +19,16 @@ if "initialized_from_qp" not in st.session_state:
     st.session_state.raidres_event_code_in = qp.get("rc", "") or ""
     st.session_state.logs_code_in = qp.get("lc", "") or ""
 
+st.markdown(
+    """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.set_page_config(page_title="SR Checker", layout="wide")
 st.title("Still Standing - Loot System validation tool")
