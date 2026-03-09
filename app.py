@@ -1,6 +1,8 @@
 from datetime import datetime as dt
+from zoneinfo import ZoneInfo
 
 import streamlit as st
+from streamlit_javascript import st_javascript
 
 from sr_checker_lib import (
     extract_code,
@@ -105,10 +107,16 @@ if run:
         st.stop()
 
     date_time_raw = raidres_event_raw["startTime"]
-    date_time = dt.fromisoformat(date_time_raw.replace("Z", "+00:00"))
+    date_time_utc = dt.fromisoformat(date_time_raw.replace("Z", "+00:00"))
+    tz = st_javascript("""Intl.DateTimeFormat().resolvedOptions().timeZone""")
+    # convert to local time
+    if tz:
+        local_time = date_time_utc.astimezone(ZoneInfo(tz))
+    else:
+        local_time = date_time_utc
 
-    st.write(f"Event time: {date_time.strftime("%Y-%m-%d %H:%M:%S UTC")}")
-    st.write(f"Event time: {date_time.astimezone()} (local -- verify in our discord)")
+    st.write(f"Event time (UTC): {date_time_utc.strftime('%Y-%m-%d %H:%M:%S UTC')}")
+    st.write(f"Event time (local): {local_time.strftime('%Y-%m-%d %H:%M:%S')} ({tz})")
 
     raid_name = raid_codes_map_reverse.get(raid_id, f"Raid ID {raid_id}")
     st.write(
