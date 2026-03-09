@@ -188,6 +188,9 @@ if run:
         use_container_width=True,
         hide_index=True,
     )
+    st.info(
+        "Note to officers: the attendance sheet is missing some logs. Take the attendance columns with a grain of salt."
+    )
     st.dataframe(get_last_attendance_update(attendance_df))
 
     st.markdown("---")
