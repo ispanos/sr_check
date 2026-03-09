@@ -4,7 +4,11 @@ from zoneinfo import ZoneInfo
 import streamlit as st
 from streamlit_javascript import st_javascript
 
-from attendance_v1 import get_attendance_per_char
+from attendance_v1 import (
+    download_attendance_goolge_sheet,
+    get_attendance_per_char,
+    get_last_attendance_update,
+)
 from sr_checker_lib import (
     extract_code,
     get_participants_from_logs,
@@ -171,8 +175,10 @@ if run:
     hv_df = sr_df[sr_df["is_high_value"]].drop(
         columns=["item_norm", "is_high_value", "id"], errors="ignore"
     )
+
     try:
-        hv_df_final = get_attendance_per_char(left_merge_df=hv_df)
+        attendance_df = download_attendance_goolge_sheet()
+        hv_df_final = get_attendance_per_char(attendance_df, left_merge_df=hv_df)
     except:
         st.info("Attendance tracking failed.")
         hv_df_final = hv_df
@@ -182,6 +188,7 @@ if run:
         use_container_width=True,
         hide_index=True,
     )
+    st.dataframe(get_last_attendance_update(attendance_df))
 
     st.markdown("---")
 

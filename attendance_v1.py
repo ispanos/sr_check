@@ -39,15 +39,19 @@ def get_last_attendance_update(df):
     latest_per_event["last_logged_date"] = latest_per_event[
         "last_logged_date"
     ].dt.strftime("%Y-%m-%d %Hst")
+    summary = latest_per_event.T
+    summary.columns = summary[0:1].values[0]
+    return summary[1:]
 
-    return latest_per_event.T
 
-
-def get_attendance_per_char(left_merge_df=None):
+def download_attendance_goolge_sheet():
     # Hard-coded until a proper database is online.
     google_sheet_attendance = "https://docs.google.com/spreadsheets/d/11HTbDcaCt2mndJy1pYKRKL1TvDOSam-R4Q7UKzbS5w0/export?format=csv&gid=1696774817"
     df = pd.read_csv(google_sheet_attendance)
-    df = df.drop(1)
+    return df.drop(1)
+
+
+def get_attendance_per_char(df, left_merge_df=None):
 
     # drop junk first column if needed
     df2 = df.iloc[:, 1:].copy()
