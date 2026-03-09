@@ -44,22 +44,25 @@ st.set_page_config(page_title="SR Checker", layout="wide")
 st.title("Still Standing - Loot System validation tool")
 
 
-with st.sidebar:
-    st.markdown("### Inputs")
+st.markdown("### Inputs")
 
+col1, col2 = st.columns(2)
+
+with col1:
     raidres_event_code_in = st.text_input(
         "Raidres event code",
         placeholder="PQWT2X or paste RaidRes link",
         key="raidres_event_code_in",
     )
 
+with col2:
     logs_code_in = st.text_input(
         "Turtlelogs event code (optional)",
-        placeholder="E.g. enter '95136' for https://www.turtlogs.com/viewer/95136/base?history_state=1",
+        placeholder="95136",
         key="logs_code_in",
     )
 
-    run = st.button("Run", type="primary")
+run = st.button("Run", type="primary")
 
 with st.sidebar:
     with st.expander("Optional settings"):
