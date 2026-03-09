@@ -1,15 +1,18 @@
+from datetime import datetime as dt
+
 import streamlit as st
 
 from sr_checker_lib import (
     extract_code,
     get_participants_from_logs,
-    get_sr_df,
+    get_raidres_data,
     get_violation_output,
     high_value_items_raid_map,
     raid_codes_map_reverse,
     show_name_list_in_columns,
     style_by_attendee,
 )
+from srplus_validator import check_srplus_integrity
 
 qp = st.query_params
 
@@ -92,12 +95,20 @@ if run:
     # 1) Build SR df
     try:
         with st.spinner("Downloading SR data..."):
-            raid_id, sr_df = get_sr_df(
+            data_dict = get_raidres_data(
                 raidres_event_code, high_value_items=high_value_items
             )
+            raid_id, sr_df, raidres_event_raw, raidres_metadata = data_dict.values()
+
     except Exception as e:
         st.exception(e)
         st.stop()
+
+    date_time_raw = raidres_event_raw["startTime"]
+    date_time = dt.fromisoformat(date_time_raw.replace("Z", "+00:00"))
+
+    st.write(f"Event time: {date_time.strftime("%Y-%m-%d %H:%M:%S UTC")}")
+    st.write(f"Event time: {date_time.astimezone()} (local -- verify in our discord)")
 
     raid_name = raid_codes_map_reverse.get(raid_id, f"Raid ID {raid_id}")
     st.write(
@@ -157,6 +168,46 @@ if run:
         hide_index=True,
     )
 
+    st.markdown("---")
+
+    st.header("SR+ Integrity Check (beta)")
+
+    srplus_check_df = check_srplus_integrity(
+        raidres_event_raw=raidres_event_raw,
+        max_consecutive_misses_allowed=3,
+        raidres_metadata=raidres_metadata,
+    )
+
+    violations_df = (
+        srplus_check_df[~srplus_check_df["ok"]]
+        .copy()
+        .drop(
+            columns=[
+                "item_id",
+                "entered_srplus",
+                "expected_srplus",
+                "ok",
+                "carry_from_event",
+            ]
+        )
+        .drop_duplicates("item_name")
+    )
+
+    if violations_df.empty:
+        st.success("No SR+ mismatches found.")
+    else:
+        st.warning(
+            "If you see your character in the following list you must contact an officer. Either this list is wrong or you are trying to cheat. If your are unfreezing points please write it in your SR's comment. (SR freezes are no longer possible.)"
+        )
+        st.warning(
+            "If your expected points are higher that they should be, please contact an officer to verify."
+        )
+        st.dataframe(
+            violations_df,
+            use_container_width=True,
+            hide_index=True,
+        )
+
     # 4) If logs_code provided: print participant list + bench/non-participants table
     if logs_code:
         st.header("Logs cross-check")
@@ -192,12 +243,12 @@ if run:
             ].drop_duplicates(),
             use_container_width=True,
         )
+
 else:
     st.info("Enter a raidres event link (or code) to check for SR violations.")
     st.info(
         "Enter a logs code and click Run to cross-check SR attendees with logs participants."
     )
-
 st.markdown("---")
 
 st.markdown(

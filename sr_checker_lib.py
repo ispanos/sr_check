@@ -123,28 +123,28 @@ def download_raidres_data(
         return r.json()
 
 
-def get_item_name_from_raidres_id(sr_raid_item_id, name_map):
-    for item in name_map["raidItems"]:
+def get_item_name_from_raidres_id(sr_raid_item_id, raidres_metadata):
+    for item in raidres_metadata["raidItems"]:
         item_id = item["id"]
         if item_id == sr_raid_item_id:
             return item["name"]
 
 
-def get_boss_name_from_raidres_id(sr_raid_item_id, name_map):
+def get_boss_name_from_raidres_id(sr_raid_item_id, raidres_metadata):
     raidBosses_returned = []
-    for item in name_map["raidItems"]:
+    for item in raidres_metadata["raidItems"]:
         item_id = item["id"]
         if item_id == sr_raid_item_id:
             raid_boss_ids = item["raidBosses"]
             for raid_boss_id in raid_boss_ids:
-                raidBosses = name_map["raidBosses"]
+                raidBosses = raidres_metadata["raidBosses"]
                 for boss in raidBosses:
                     if boss["id"] == raid_boss_id:
                         raidBosses_returned.append(boss["name"])
     return raidBosses_returned
 
 
-def build_sr_df(payload: Dict[str, Any], name_map) -> pd.DataFrame:
+def build_sr_df(payload: Dict[str, Any], raidres_metadata) -> pd.DataFrame:
     """
     Create a DataFrame with columns:
       ID, Item, Boss, Attendee, Comment, SR+
@@ -182,8 +182,8 @@ def build_sr_df(payload: Dict[str, Any], name_map) -> pd.DataFrame:
         sr_raid_item_id = sr_line["raidItemId"]
 
         # Resolve item + boss from raidItemId
-        sr_item_name = get_item_name_from_raidres_id(sr_raid_item_id, name_map)
-        sr_boss_names = get_boss_name_from_raidres_id(sr_raid_item_id, name_map)
+        sr_item_name = get_item_name_from_raidres_id(sr_raid_item_id, raidres_metadata)
+        sr_boss_names = get_boss_name_from_raidres_id(sr_raid_item_id, raidres_metadata)
         rows.append(
             {
                 "id": sr_id,
@@ -234,7 +234,7 @@ def get_violation_list(sr_df):
     return violations
 
 
-def get_sr_df(raidres_event_code, *, raid=None, high_value_items=None):
+def get_raidres_data(raidres_event_code, *, raid=None, high_value_items=None):
 
     if high_value_items is None:
         high_value_items = [norm_item(item) for item in HIGH_VALUE_ITEMS]
@@ -249,12 +249,19 @@ def get_sr_df(raidres_event_code, *, raid=None, high_value_items=None):
             raise ValueError(
                 f"Invalid raid name: {raid}. Valid options: {list(raid_codes_map.keys())}"
             )
+    raidres_metadata = download_raidres_data(raid_code=raid_id)
+    sr_data = download_raidres_data(event_code=raidres_event_code)
     sr_df = build_sr_df(
-        download_raidres_data(event_code=raidres_event_code),
-        download_raidres_data(raid_code=raid_id),
+        sr_data,
+        raidres_metadata,
     )
     sr_df["is_high_value"] = sr_df["item_norm"].isin(high_value_items)
-    return raid_id, sr_df
+    return {
+        "id": raid_id,
+        "sr_df": sr_df,
+        "raidres_event_raw": sr_data,
+        "raidres_metadata": raidres_metadata,
+    }
 
 
 def get_violation_output(sr_df):
