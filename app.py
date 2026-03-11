@@ -258,13 +258,10 @@ if run:
                 header=f"Logged participants ({len(logged_participants)})",
             )
 
-            log_header = date_time_utc.strftime("%d/%m/%Y %H:%M:%S")
-            df_partic_col = get_attendance_column(log_header, logged_participants)
-
-            # st.dataframe(
-            #     df_partic_col,
-            #     hide_index=True,
-            # )
+            log_header = date_time_utc.strftime("%m/%d/%Y %H:%M:%S")
+            df_partic_col = get_attendance_column(
+                log_header, date_time_utc, raid_name, logged_participants
+            )
 
             copy_text = "\n".join(
                 [log_header] + df_partic_col[log_header].astype(str).tolist()

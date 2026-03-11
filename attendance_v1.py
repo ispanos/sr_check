@@ -1,5 +1,11 @@
 import pandas as pd
 
+raid_name_log_format = {
+    "AQ40": "AQ 40",
+    "Kara40": "Kara 40",
+    "Naxx": "Naxx",
+}
+
 
 def get_last_attendance_update(df):
     # drop the junk first column if needed
@@ -87,10 +93,11 @@ def get_attendance_per_char(df, left_merge_df=None):
     return attendance_pivot
 
 
-def get_attendance_column(header, logged_participants):
+def get_attendance_column(header, date_time_utc, raid_name, logged_participants):
+    log_row_two = f"{date_time_utc.strftime("%A")} {raid_name_log_format[raid_name]}"
 
     return pd.DataFrame(
         {
-            header: ["TRUE"] + logged_participants,
+            header: [log_row_two, "TRUE"] + logged_participants,
         }
     )
