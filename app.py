@@ -5,11 +5,12 @@ import streamlit as st
 from streamlit_javascript import st_javascript
 
 from attendance_v1 import (
-    download_attendance_goolge_sheet,
+    download_attendance_google_sheet,
     get_attendance_column,
     get_attendance_per_char,
     get_last_attendance_update,
 )
+
 from sr_checker_lib import (
     extract_code,
     get_participants_from_logs,
@@ -181,7 +182,7 @@ if run:
     )
 
     try:
-        attendance_df = download_attendance_goolge_sheet()
+        attendance_df = download_attendance_google_sheet()
         hv_df_final = get_attendance_per_char(attendance_df, left_merge_df=hv_df)
     except:
         st.info("Attendance tracking failed.")

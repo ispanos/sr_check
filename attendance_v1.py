@@ -87,10 +87,10 @@ def get_attendance_per_char(df, left_merge_df=None):
     return attendance_pivot
 
 
-def get_attendance_column(log_header, logged_participants):
-    
+def get_attendance_column(header, logged_participants):
+
     return pd.DataFrame(
         {
-            log_header: ["TRUE"] + logged_participants,
+            header: ["TRUE"] + logged_participants,
         }
     )
