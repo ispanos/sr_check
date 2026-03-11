@@ -44,7 +44,7 @@ def get_last_attendance_update(df):
     return summary[1:]
 
 
-def download_attendance_goolge_sheet():
+def download_attendance_google_sheet():
     # Hard-coded until a proper database is online.
     google_sheet_attendance = "https://docs.google.com/spreadsheets/d/11HTbDcaCt2mndJy1pYKRKL1TvDOSam-R4Q7UKzbS5w0/export?format=csv&gid=1696774817"
     df = pd.read_csv(google_sheet_attendance)
