@@ -6,6 +6,7 @@ from streamlit_javascript import st_javascript
 
 from attendance_v1 import (
     download_attendance_goolge_sheet,
+    get_attendance_column,
     get_attendance_per_char,
     get_last_attendance_update,
 )
@@ -195,6 +196,9 @@ if run:
         "Note to officers: the attendance sheet is missing some logs. Take the attendance columns with a grain of salt."
     )
     st.dataframe(get_last_attendance_update(attendance_df))
+    st.markdown(
+        "[Attendance sheet](https://docs.google.com/spreadsheets/d/11HTbDcaCt2mndJy1pYKRKL1TvDOSam-R4Q7UKzbS5w0/edit?gid=1696774817#gid=1696774817)"
+    )
 
     st.markdown("---")
 
@@ -250,13 +254,35 @@ if run:
             # st.exception(e)
             st.stop()
 
-        # print logged_participants (nice columns, alphabetical)
-        show_name_list_in_columns(
-            logged_participants,
-            st,
-            n_cols=4,
-            header=f"Logged participants ({len(logged_participants)})",
-        )
+        with st.expander("Participant list:"):
+            # print logged_participants (nice columns, alphabetical)
+            show_name_list_in_columns(
+                logged_participants,
+                st,
+                n_cols=4,
+                header=f"Logged participants ({len(logged_participants)})",
+            )
+
+            log_header = date_time_utc.strftime("%d/%m/%Y %H:%M:%S")
+            df_partic_col = get_attendance_column(log_header, logged_participants)
+
+            # st.dataframe(
+            #     df_partic_col,
+            #     hide_index=True,
+            # )
+
+            copy_text = "\n".join(
+                [log_header] + df_partic_col[log_header].astype(str).tolist()
+            )
+
+            st.text_area(
+                "Copy column (header included):",
+                copy_text,
+                height=200,
+            )
+            st.markdown(
+                "Go to [attendance sheet](https://docs.google.com/spreadsheets/d/11HTbDcaCt2mndJy1pYKRKL1TvDOSam-R4Q7UKzbS5w0/edit?gid=1696774817#gid=1696774817)"
+            )
 
         # then show bench / missing participants
         mask_bench = sr_df["comment"].str.contains("bench", case=False, na=False)
